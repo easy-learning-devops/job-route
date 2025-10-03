@@ -45,8 +45,8 @@ Follow these steps to get the application running on your local machine.
 Open your terminal and clone the project repository:
 
 ```bash
-git clone <your-repository-url>
-cd <your-project-directory>
+git clone https://github.com/easy-learning-devops/job-route
+cd job-route
 ```
 
 ### 2. Backend Setup
@@ -54,11 +54,13 @@ cd <your-project-directory>
 The backend server connects to the database and exposes the API endpoints.
 
 a. **Navigate to the server directory**:
+
 ```bash
 cd server
 ```
 
 b. **Install dependencies**:
+
 ```bash
 npm install
 ```
@@ -88,14 +90,21 @@ JWT_SECRET=your_jwt_secret_key
 The frontend is a React application that consumes the backend API.
 
 a. **Navigate to the client directory from the root folder**:
+
 ```bash
 cd client
 ```
 
 b. **Install dependencies**:
+
 ```bash
 npm install
 ```
+
+c. **Install react-route**:
+
+````bash
+npm install react-scripts --save
 
 The client `package.json` includes a `"proxy": "http://localhost:5000"` entry, which automatically forwards API requests from the React app to the backend server during development.
 
@@ -113,8 +122,10 @@ You will need to run both the backend and frontend servers simultaneously in two
 ```bash
 # In server/
 npm run server
-```
+````
+
 You should see a message confirming the server has started and connected to MongoDB:
+
 ```
 Server started on port 5000
 MongoDB Connected...
@@ -129,6 +140,7 @@ MongoDB Connected...
 # In client/
 npm start
 ```
+
 This will start the React development server, and your default web browser should automatically open to `http://localhost:3000`.
 
 **You can now use the application!**
@@ -147,4 +159,5 @@ If you want to populate the database with some initial sample job data for testi
 ```bash
 node server/seed.js
 ```
+
 You should see a confirmation message: `Database seeded!`
