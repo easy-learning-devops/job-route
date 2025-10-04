@@ -46,15 +46,12 @@ const jobTitles = [
 
 const seedDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    await JobTitles.deleteMany({});
+    await mongoose.connect(process.env.MONGO_URI);
+    await JobTitle.deleteMany({});
     console.log("Existing job titles cleared.");
 
     const titlesToInsert = jobTitles.map((name) => ({ name }));
-    await jobTitles.insertMany(titlesToInsert);
+    await JobTitle.insertMany(titlesToInsert);
 
     console.log(
       `${jobTitles.length} job titles have been seeded successfully!`

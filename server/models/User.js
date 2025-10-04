@@ -31,4 +31,5 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("user", UserSchema);
+// Fix OverwriteModelError
+module.exports = mongoose.models.user || mongoose.model("user", UserSchema);

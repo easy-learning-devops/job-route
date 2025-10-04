@@ -22,6 +22,7 @@ app.use("/api/employer-profile", require("./routes/api/employerProfile"));
 app.use("/api/admin", require("./routes/api/admin"));
 app.use("/api/applications", require("./routes/api/applications"));
 app.use("/api/job-titles", require("./routes/api/jobTitles"));
+app.use("/api/skills", require("./routes/api/skills"));
 
 const PORT = process.env.PORT || 5000;
 
