@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Login = ({ onLoginSuccess, showRegister }) => {
+const AdminLogin = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState({
-    email: "",
+    email: "admin@jobconnect.com",
     password: "",
   });
   const [error, setError] = useState("");
@@ -19,18 +19,13 @@ const Login = ({ onLoginSuccess, showRegister }) => {
     setError("");
     try {
       const res = await axios.post("/api/users/login", formData);
-      if (res.data.userType !== "jobseeker") {
-        const userType =
-          res.data.userType.charAt(0).toUpperCase() +
-          res.data.userType.slice(1);
-        setError(
-          `This is not a jobseeker account. Please use the ${userType} login page.`
-        );
+      if (res.data.userType !== "admin") {
+        setError("Authentication failed. This is not an admin account.");
         return;
       }
       onLoginSuccess(res.data.token, res.data.userType);
     } catch (err) {
-      console.error(err.response.data);
+      console.error(err.response ? err.response.data : "An error occurred");
       const errorMsg =
         err.response?.data?.errors?.[0]?.msg ||
         "Login failed. Please check your credentials.";
@@ -40,7 +35,17 @@ const Login = ({ onLoginSuccess, showRegister }) => {
 
   return (
     <div className="form-container">
-      <h2>Sign In</h2>
+      <h2>Admin Sign In</h2>
+      <p
+        style={{
+          color: "#6c757d",
+          marginBottom: "1.5rem",
+          textAlign: "center",
+        }}
+      >
+        Ensure the admin account has been created by running <br />
+        <code>npm run seed:admin</code> in the server directory.
+      </p>
       <form onSubmit={onSubmit}>
         {error && <p className="error-message">{error}</p>}
         <div className="form-group">
@@ -72,14 +77,8 @@ const Login = ({ onLoginSuccess, showRegister }) => {
           Login
         </button>
       </form>
-      <p style={{ marginTop: "1rem", textAlign: "center" }}>
-        Don't have an account?{" "}
-        <a href="#!" onClick={showRegister}>
-          Register
-        </a>
-      </p>
     </div>
   );
 };
 
-export default Login;
+export default AdminLogin;

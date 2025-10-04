@@ -4,6 +4,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
+const EmployerProfile = require("../../models/EmployerProfile");
 
 // @route   POST api/users/register
 // @desc    Register user
@@ -29,8 +30,16 @@ router.post("/register", async (req, res) => {
 
     await user.save();
 
-    // If employer, don't issue token. Send success message.
+    // If employer, create a default profile and don't issue token.
     if (user.role === "employer") {
+      // Create a basic employer profile so they appear in admin dashboard
+      const profileFields = {
+        user: user.id,
+        companyName: name, // Use the registration name as default company name
+      };
+      const employerProfile = new EmployerProfile(profileFields);
+      await employerProfile.save();
+
       return res.json({
         msg: "Employer account registered. It is now pending admin approval.",
       });
@@ -43,7 +52,14 @@ router.post("/register", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "5 days" },
       (err, token) => {
-        if (err) throw err;
+        if (err) {
+          console.error("JWT Token Signing Error on register:", err.message);
+          return res
+            .status(500)
+            .json({
+              errors: [{ msg: "Server error during token generation." }],
+            });
+        }
         res.json({ token });
       }
     );
@@ -83,18 +99,38 @@ router.post("/login", async (req, res) => {
     }
 
     const payload = { user: { id: user.id, role: user.role } };
+
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
       { expiresIn: "5 days" },
       (err, token) => {
-        if (err) throw err;
+        // CRITICAL FIX: Handle error inside the callback. `throw err` would crash the server.
+        if (err) {
+          console.error("JWT Token Signing Error on login:", err.message);
+          // Check for missing secret key, a common configuration error
+          if (err.message && err.message.includes("secretOrPrivateKey")) {
+            return res
+              .status(500)
+              .json({
+                errors: [{ msg: "Server configuration error prevents login." }],
+              });
+          }
+          return res
+            .status(500)
+            .json({ errors: [{ msg: "Server error during authentication." }] });
+        }
         res.json({ token, userType: user.role });
       }
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    console.error("Login Error:", err.message);
+    // Ensure all server errors return a consistent JSON format
+    res
+      .status(500)
+      .json({
+        errors: [{ msg: "A server error occurred. Please try again later." }],
+      });
   }
 });
 

@@ -23,19 +23,19 @@ const Header = ({ isAuthenticated, userType, onLogout, navigate }) => {
           {!isAuthenticated && (
             <>
               <button onClick={() => navigate("employerAuth")} className="btn">
-                Post new Job
-              </button>
-              <button
-                onClick={() => alert("Pricing page coming soon!")}
-                className="btn btn-outline"
-              >
-                Pricing
+                For Employers
               </button>
               <button
                 onClick={() => navigate("login")}
                 className="btn btn-outline"
               >
-                Sign In
+                Jobseeker Sign In
+              </button>
+              <button
+                onClick={() => navigate("adminLogin")}
+                className="btn btn-secondary"
+              >
+                Admin Login
               </button>
             </>
           )}

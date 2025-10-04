@@ -17,6 +17,7 @@ import EmployerProfileForm from "./components/employer/EmployerProfileForm";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AdminEmployerDetails from "./components/admin/AdminEmployerDetails";
 import MyApplications from "./components/jobseeker/MyApplications";
+import AdminLogin from "./components/auth/AdminLogin";
 
 function App() {
   const [page, setPage] = useState("landing");
@@ -93,6 +94,8 @@ function App() {
               showRegister={() => navigate("register")}
             />
           );
+        case "adminLogin":
+          return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
         case "employerAuth":
           return <EmployerAuth onLoginSuccess={handleLoginSuccess} />;
         case "landing":

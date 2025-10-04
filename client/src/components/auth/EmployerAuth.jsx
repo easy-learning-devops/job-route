@@ -8,13 +8,23 @@ const EmployerAuth = ({ onLoginSuccess }) => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
   const { name, email, password } = formData;
 
-  const onChange = (e) =>
+  const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError("");
+  };
+
+  const switchMode = (mode) => {
+    setAuthMode(mode);
+    setError("");
+    setFormData({ name: "", email: "", password: "" });
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     const url =
       authMode === "login" ? "/api/users/login" : "/api/users/register";
     const payload =
@@ -23,26 +33,33 @@ const EmployerAuth = ({ onLoginSuccess }) => {
         : { name, email, password, role: "employer" };
 
     try {
-      const res = await axios.post(url, payload);
       if (authMode === "login") {
-        onLoginSuccess(res.data.token, res.data.userType); // Pass role from API on login
+        const res = await axios.post(url, payload);
+        if (res.data.userType !== "employer") {
+          const userType =
+            res.data.userType.charAt(0).toUpperCase() +
+            res.data.userType.slice(1);
+          setError(
+            `This is not an employer account. Please use the ${userType} login page.`
+          );
+          return;
+        }
+        onLoginSuccess(res.data.token, res.data.userType);
       } else {
+        const res = await axios.post(url, payload);
         // On register, backend now sends a message for employers
         alert(
           res.data.msg ||
             "Registration successful! Your account is pending approval."
         );
-        setAuthMode("login"); // Switch to login view after successful registration
+        switchMode("login"); // Switch to login view after successful registration
       }
     } catch (err) {
       console.error(err.response.data);
-      alert(
-        `Authentication failed. ${
-          err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : "Please check your credentials."
-        }`
-      );
+      const errorMsg =
+        err.response?.data?.errors?.[0]?.msg ||
+        "Authentication failed. Please check your credentials.";
+      setError(errorMsg);
     }
   };
 
@@ -50,13 +67,13 @@ const EmployerAuth = ({ onLoginSuccess }) => {
     <div className="form-container">
       <div className="auth-toggle">
         <button
-          onClick={() => setAuthMode("login")}
+          onClick={() => switchMode("login")}
           className={authMode === "login" ? "active" : ""}
         >
           Sign In
         </button>
         <button
-          onClick={() => setAuthMode("register")}
+          onClick={() => switchMode("register")}
           className={authMode === "register" ? "active" : ""}
         >
           Sign Up
@@ -66,6 +83,7 @@ const EmployerAuth = ({ onLoginSuccess }) => {
         {authMode === "login" ? "Employer Login" : "Create Employer Account"}
       </h2>
       <form onSubmit={onSubmit}>
+        {error && <p className="error-message">{error}</p>}
         {authMode === "register" && (
           <div className="form-group">
             <label htmlFor="name">
